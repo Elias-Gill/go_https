@@ -14,9 +14,9 @@ func UserHandlers(r *chi.Mux) {
 		user, pasw, ok := r.BasicAuth()
 		if ok {
 			clave, err := servidor.IniciarSesion(user, pasw)
-            if err != nil {
-                w.Write([]byte(err.Error()))
-            }
+			if err != nil {
+				w.Write([]byte(err.Error()))
+			}
 			w.Write([]byte(clave))
 		}
 	})

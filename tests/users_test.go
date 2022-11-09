@@ -22,7 +22,7 @@ func nuevoServerPruebas() *httptest.Server {
 func TestUserAuthentication(t *testing.T) {
 	// nuevo server de pruebas
 	ts := nuevoServerPruebas()
-    defer ts.Close()
+	defer ts.Close()
 
 	// iniciar sesion con el nuevo usuario
 	req, _ := http.NewRequest("GET", ts.URL, nil)
@@ -33,7 +33,7 @@ func TestUserAuthentication(t *testing.T) {
 		return
 	}
 	x, _ := io.ReadAll(res.Body)
-    clave := string(x)  
+	clave := string(x)
 	if clave != "123" {
 		t.Error("Credenciales mal retornadas: " + string(x))
 	}
