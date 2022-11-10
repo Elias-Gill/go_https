@@ -8,10 +8,10 @@ import (
 )
 
 // TODO: anadir las funciones
-func UserHandlers(r *chi.Mux) {
-	// cada nueva accion
+func UserHandlers(r chi.Router) {
+	// iniciar sesion
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		user, pasw, ok := r.BasicAuth()
+		user, pasw, ok := r.BasicAuth() // get user credentials
 		if ok {
 			clave, err := servidor.IniciarSesion(user, pasw)
 			if err != nil {
@@ -21,16 +21,7 @@ func UserHandlers(r *chi.Mux) {
 		}
 	})
 
-	r.Get("/perfil", func(w http.ResponseWriter, r *http.Request) {
-		credential := r.Header["Authentication"][0] // <-- cuidar el estandar http
-		if credential == "123" {
-			w.Write([]byte("exitoso"))
-		} else {
-			w.Write([]byte("Credenciales invalidas"))
-			r.Response.Status = "405"
-		}
-	})
-
+    // crear usuario nuevo
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("crear nueva cuenta"))
 	})

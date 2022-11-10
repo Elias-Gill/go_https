@@ -6,18 +6,19 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/elias-gill/go_pokemon/userHandlers"
+	"github.com/elias-gill/go_pokemon/teams"
+	"github.com/elias-gill/go_pokemon/users"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
 func main() {
 	port := ":3000"
-
 	// instantiate chi router
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	users.UserHandlers(r)
+    r.Route("/user", users.UserHandlers)
+    r.Route("/teams", teams.TeamsHandlers)
 
 	// start server
 	println("Starting server in port" + port)

@@ -7,14 +7,16 @@ import (
 	"net/url"
 	"testing"
 
-	users "github.com/elias-gill/go_pokemon/userHandlers"
+	"github.com/elias-gill/go_pokemon/teams"
+	users "github.com/elias-gill/go_pokemon/users"
 	"github.com/go-chi/chi/v5"
 )
 
 // funcion para incializar un nuevo server de pruebas
 func nuevoServerPruebas() *httptest.Server {
 	r := chi.NewRouter()
-	users.UserHandlers(r)
+    r.Route("/user", users.UserHandlers)
+    r.Route("/teams", teams.TeamsHandlers)
 	return httptest.NewServer(r)
 }
 
@@ -25,7 +27,7 @@ func TestUserAuthentication(t *testing.T) {
 	defer ts.Close()
 
 	// iniciar sesion con el nuevo usuario
-	req, _ := http.NewRequest("GET", ts.URL, nil)
+	req, _ := http.NewRequest("GET", ts.URL+"/user/", nil)
 	req.URL.User = url.UserPassword("elias", "123")
 	res, err := ts.Client().Do(req)
 	if err != nil {
@@ -37,9 +39,10 @@ func TestUserAuthentication(t *testing.T) {
 	if clave != "123" {
 		t.Error("Credenciales mal retornadas: " + string(x))
 	}
+}
 
-	// iniciar sesion con el nuevo usuario
-	req, _ = http.NewRequest("GET", ts.URL+"/perfil", nil)
+	/* // iniciar sesion con el nuevo usuario
+	req, _ = http.NewRequest("GET", ts.URL+"/user/", nil)
 	req.Header.Set("Authentication", clave)
 	res, err = ts.Client().Do(req)
 	if err != nil {
@@ -49,5 +52,4 @@ func TestUserAuthentication(t *testing.T) {
 	x, _ = io.ReadAll(res.Body)
 	if string(x) != "exitoso" {
 		t.Error("Credenciales mal retornadas: " + string(x))
-	}
-}
+	} */
