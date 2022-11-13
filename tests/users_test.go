@@ -15,8 +15,8 @@ import (
 // funcion para incializar un nuevo server de pruebas
 func nuevoServerPruebas() *httptest.Server {
 	r := chi.NewRouter()
-    r.Route("/user", users.UserHandlers)
-    r.Route("/teams", teams.TeamsHandlers)
+	r.Route("/user", users.UserHandlers)
+	r.Route("/teams", teams.TeamsHandlers)
 	return httptest.NewServer(r)
 }
 
@@ -41,15 +41,15 @@ func TestUserAuthentication(t *testing.T) {
 	}
 }
 
-	/* // iniciar sesion con el nuevo usuario
-	req, _ = http.NewRequest("GET", ts.URL+"/user/", nil)
-	req.Header.Set("Authentication", clave)
-	res, err = ts.Client().Do(req)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	x, _ = io.ReadAll(res.Body)
-	if string(x) != "exitoso" {
-		t.Error("Credenciales mal retornadas: " + string(x))
-	} */
+/* // iniciar sesion con el nuevo usuario
+req, _ = http.NewRequest("GET", ts.URL+"/user/", nil)
+req.Header.Set("Authentication", clave)
+res, err = ts.Client().Do(req)
+if err != nil {
+	t.Error(err)
+	return
+}
+x, _ = io.ReadAll(res.Body)
+if string(x) != "exitoso" {
+	t.Error("Credenciales mal retornadas: " + string(x))
+} */

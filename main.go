@@ -17,8 +17,8 @@ func main() {
 	// instantiate chi router
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-    r.Route("/user", users.UserHandlers)
-    r.Route("/teams", teams.TeamsHandlers)
+	r.Route("/user", users.UserHandlers)
+	r.Route("/teams", teams.TeamsHandlers)
 
 	// start server
 	println("Starting server in port" + port)

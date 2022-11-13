@@ -21,7 +21,7 @@ func UserHandlers(r chi.Router) {
 		}
 	})
 
-    // crear usuario nuevo
+	// crear usuario nuevo
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("crear nueva cuenta"))
 	})
