@@ -3,7 +3,7 @@ package users
 import (
 	"net/http"
 
-	"github.com/elias-gill/go_pokemon/servidor"
+	servidor "github.com/elias-gill/go_pokemon/server"
 	"github.com/go-chi/chi/v5"
 )
 

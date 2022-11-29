@@ -41,15 +41,6 @@ func TestUserAuthentication(t *testing.T) {
 	}
 }
 
-/* // iniciar sesion con el nuevo usuario
-req, _ = http.NewRequest("GET", ts.URL+"/user/", nil)
-req.Header.Set("Authentication", clave)
-res, err = ts.Client().Do(req)
-if err != nil {
-	t.Error(err)
-	return
+func Test()  {
+    
 }
-x, _ = io.ReadAll(res.Body)
-if string(x) != "exitoso" {
-	t.Error("Credenciales mal retornadas: " + string(x))
-} */
