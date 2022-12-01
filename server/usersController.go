@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/elias-gill/go_pokemon/tools"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -21,7 +22,7 @@ func IniciarSesion(nombre string, contrasena string) (string, error) {
 		return "", err
 	}
 	// generar y retornar el token con expiracion de 10 mins
-	token, err := GenerateJWT(nombre)
+	token, err := tools.GenerateJWT(nombre)
 	if err != nil {
 		return "", err
 	}
@@ -33,8 +34,12 @@ func NewUser(nombre string, password string) error {
 	// conectar con mongo
 	c := connectToMongo()
 	defer c.closeMongo()
+    // comprobar datos
+    if nombre == "" || password == "" {
+		return fmt.Errorf("Datos proporcionados invalidos")
+    }
 	// si el usuario ya existe entoces retornar un error
-	if _, e := SearchUser(nombre); e == nil {
+	if u, _ := SearchUser(nombre); u != nil {
 		return fmt.Errorf("El usuario ya existe")
 	}
 
@@ -63,7 +68,7 @@ type userModel struct {
 }
 
 // funcion para buscar un usuario dentro de la base de datos
-func SearchUser(user string) (userModel, error) {
+func SearchUser(user string) (*userModel, error) {
 	// conectar con mongo
 	c := connectToMongo()
 	defer c.closeMongo()
@@ -75,9 +80,9 @@ func SearchUser(user string) (userModel, error) {
 	err := database.FindOne(context.TODO(), bson.D{{"userName", user}}).Decode(&result)
 	if err == mongo.ErrNoDocuments {
 		fmt.Println("No user found")
-		return userModel{}, err
+		return nil, err
 	}
-	return result, nil
+	return &result, nil
 }
 
 // funcion para cerrar mongo tranquilamente
