@@ -1,40 +1,20 @@
 package routers
 
 import (
-	"encoding/json"
 	"net/http"
-
-	servidor "github.com/elias-gill/go_pokemon/server"
 	"github.com/go-chi/chi/v5"
 )
 
-// TODO: anadir las funciones
 func TeamsHandlers(r chi.Router) {
 	// iniciar sesion
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		user, pasw, ok := r.BasicAuth() // get user credentials
-		if ok {
-			jwt, err := servidor.IniciarSesion(user, pasw)
-			if err != nil {
-				w.Write([]byte(err.Error()))
-			}
-			w.Write([]byte("JWT: " + jwt))
-		}
+        w.Write([]byte("get de manera exitosa"))
+        // TODO: realizar la busqueda y esas cosas
 	})
 
 	// anadir un nuevo usuario a la base de datos
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-		var data newUser
-		err := json.NewDecoder(r.Body).Decode(&data)
-		if err != nil {
-			w.Write([]byte("Body request invalido"))
-            w.Write([]byte(err.Error()))
-            w.Write([]byte("\n\n" + data.UserName))
-            return
-		}
-		// crear el nuevo usuario
-		servidor.NewUser(data.UserName, data.Password)
-		w.Write([]byte("cuenta creada satisfactoriamente"))
+        w.Write([]byte("post de manera exitosa"))
 	})
 }
 

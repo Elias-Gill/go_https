@@ -14,12 +14,12 @@ func UserHandlers(r chi.Router) {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		user, pasw, ok := r.BasicAuth() // get user credentials
 		if ok {
-			jwt, err := servidor.IniciarSesion(user, pasw)
+			token, err := servidor.IniciarSesion(user, pasw)
 			if err != nil {
 				w.Write([]byte(err.Error()))
 			}
-			w.Header().Add("Content-type", "application/json")
-			w.Write([]byte("JWT: " + jwt))
+			w.Header().Set("Content-type", "application/json")
+            json.NewEncoder(w).Encode(jwtResponse{jwt: token}) // mandar el jwt con json
 		}
 	})
 
@@ -43,4 +43,8 @@ func UserHandlers(r chi.Router) {
 type newUser struct {
 	UserName string `bson:"userName"`
 	Password string `bson:"password"`
+}
+
+type jwtResponse struct {
+    jwt string
 }
