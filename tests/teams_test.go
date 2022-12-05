@@ -2,52 +2,56 @@ package test
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/url"
 	"testing"
 )
 
-// nuevo server de pruebas
-var ts = nuevoServerPruebas()
+var (
+	ts    = nuevoServerPruebas() // sever de pruebas
+	token = iniciarSesion()      // jwt de usuario de pruebas
+)
 
-func iniciarSesion() (*http.Response, error) {
+// struct para extraer el token de la request
+type tokens struct {
+	Token string `json:"jwt"`
+}
+
+// funcion para iniciar sesion en el usuario de pruebas. Consigue el jwt y lo guarda
+// en la variable global toke
+func iniciarSesion() string {
 	// iniciar sesion con el nuevo usuario
 	req, _ := http.NewRequest("GET", ts.URL+"/user/", nil)
 	req.URL.User = url.UserPassword("Elias", "123")
 	res, err := ts.Client().Do(req)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-type tokens struct {
-	token string `bson:"JWT"`
-}
-
-// TODO: continuar con los tests
-// test para agregar un nuevo pokemon al equipo
-func TestNewPokemon(t *testing.T) {
-	res, err := iniciarSesion()
-	if err != nil {
-		t.Error(err)
-		return
+	if err != nil || res.StatusCode != 200 {
+		println(io.ReadAll(res.Body))
+		panic("Error en el inicio de sesion: status " + res.Status)
 	}
 	// extraer y guardar el token
-	var data tokens
-	err = json.NewDecoder(res.Body).Decode(&data)
-	if err != nil {
-		t.Error(err)
-		return
+	var t tokens
+	err = json.NewDecoder(res.Body).Decode(&t)
+	if err != nil || t.Token == "" {
+		panic("Cannot parse token")
 	}
+	return t.Token
+}
 
+// test para agregar un nuevo pokemon al equipo
+func TestGetPokemonTeam(t *testing.T) {
 	// requerir el team del usuario
 	req, _ := http.NewRequest("GET", ts.URL+"/teams/", nil)
-	req.Header.Add("Bearer", data.token)
-	res, err = ts.Client().Do(req)
+	req.Header.Set("Authorization", "Bearer "+token)
+	res, err := ts.Client().Do(req)
 	if err != nil {
-        t.Error(err)
+		t.Errorf("No se pudo get teams pokemon: %s", err)
 		return
 	}
-	return
+	if res.StatusCode != 200 {
+		t.Errorf("Status not ok de get teams")
+        x, _ := io.ReadAll(res.Body)
+		println("que ? " + string(x))
+		return
+	}
 }

@@ -55,7 +55,6 @@ func TestUserAuthentication(t *testing.T) {
 func anadirUsuarioDefecto() {
 	err := server.NewUser("Elias", "123")
 	if err != nil {
-		print(err.Error())
-		print("\n\n")
+		println(err.Error())
 	}
 }

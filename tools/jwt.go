@@ -8,12 +8,14 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+var clave = []byte("mi clave super secreta")
+
 // generar un nuevo jwt para la autenticacion del usuario
 func GenerateJWT(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userName": username,
 	})
-	res, err := token.SignedString([]byte("mi clave super secreta"))
+	res, err := token.SignedString(clave)
 	if err != nil {
 		return "", err
 	}
@@ -22,48 +24,59 @@ func GenerateJWT(username string) (string, error) {
 
 // comprueba el estado del jwt para revisar
 func ComprobarJWT(receivedToken string) error {
-	token, err := jwt.Parse(receivedToken, func(tk *jwt.Token) (interface{}, error) {
-		if _, ok := tk.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", tk.Header["alg"])
+	token, err := jwt.Parse(receivedToken, func(token *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return tk, nil
+		return clave, nil
 	})
-
-	// comprobar el estado del jwt
-	if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return nil
-	} else {
+	// mal parseo
+	if err != nil {
 		return err
 	}
+	// token invalido
+	if _, ok := token.Claims.(jwt.MapClaims); ok != true || token.Valid == false {
+		return fmt.Errorf("Token invalido")
+	}
+	return nil
 }
 
-// TODO: terminar
 // jwt midleware to protect authentication
 func JwtMidleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// no proteger "/user/" porque no necesita token para crear o iniciar sesion
 		if r.URL.Path == "/user/" {
-			print("\n" + r.URL.Path)
 			next.ServeHTTP(w, r)
 			return
 		}
-		// get the token from the request
-		authHeader := strings.Split(r.Header.Get("Authorization"), "Bearer")
-		// comprobar el estado del token
-		if len(authHeader) != 2 {
-            fmt.Println("Malformed token: "+ authHeader[1])
+		// extraer el token
+		token, err := extractToken(r)
+		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("Malformed Token"))
 			return
 		}
-		// comprobar si el token es correcto
-		token := authHeader[1]
+		// comprobar el token
 		if err := ComprobarJWT(token); err != nil {
-			fmt.Println("Unauthorized: " + err.Error())
+			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Unauthorized"))
+			w.Write([]byte("Invalid token"))
 			return
 		}
 		// pasar al siguiente midleware
 		next.ServeHTTP(w, r)
 	})
+}
+
+func extractToken(r *http.Request) (string, error) {
+	// get the token from the request
+	authHeader := strings.Split(r.Header.Get("Authorization"), "Bearer")
+	// comprobar el estado del token
+	if len(authHeader) != 2 {
+		return "", fmt.Errorf("Malformed Token")
+	}
+	// comprobar si el token es correcto
+	token := strings.TrimPrefix(authHeader[1], ": ") // eliminar esta parte de la request
+	return token, nil
 }

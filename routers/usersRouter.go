@@ -14,13 +14,21 @@ func UserHandlers(r chi.Router) {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		user, pasw, ok := r.BasicAuth() // get user credentials
 		if ok {
+            w.Header().Set("Content-type", "application/json")
 			token, err := servidor.IniciarSesion(user, pasw)
 			if err != nil {
+				w.WriteHeader(405) // error de autenticacion
 				w.Write([]byte(err.Error()))
+				return
 			}
-			w.Header().Set("Content-type", "application/json")
-            json.NewEncoder(w).Encode(jwtResponse{jwt: token}) // mandar el jwt con json
+			// mandar el jwt con json
+            println(token)
+			jwt := jwtResponse{Jwt: token}
+			json.NewEncoder(w).Encode(jwt)
+			return
 		}
+		w.WriteHeader(405) // error de autenticacion
+        w.Write([]byte("Usuario o contrasena invalidos"))
 	})
 
 	// anadir un nuevo usuario a la base de datos
@@ -45,6 +53,8 @@ type newUser struct {
 	Password string `bson:"password"`
 }
 
+// BUG: Gill, sos medio boludo y te soles olvidar de que las variables
+// para poder hacer el encoding tenes que poner en mayusculas(exportar)
 type jwtResponse struct {
-    jwt string
+	Jwt string `bson:"jwt"`
 }
