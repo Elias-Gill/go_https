@@ -2,6 +2,7 @@ package tools
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -22,8 +23,8 @@ func GenerateJWT(username string) (string, error) {
 	return res, nil
 }
 
-// comprueba el estado del jwt para revisar
-func ComprobarJWT(receivedToken string) error {
+// Comprobar el jwt, parsearlo, revisar la firma y la validez del token
+func ComprobarJWT(receivedToken string) (string, error) {
 	token, err := jwt.Parse(receivedToken, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -33,13 +34,14 @@ func ComprobarJWT(receivedToken string) error {
 	})
 	// mal parseo
 	if err != nil {
-		return err
+		return "", err
 	}
 	// token invalido
-	if _, ok := token.Claims.(jwt.MapClaims); ok != true || token.Valid == false {
-		return fmt.Errorf("Token invalido")
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok != true || token.Valid == false {
+		return "", fmt.Errorf("Token invalido o claims corrompidas")
 	}
-	return nil
+	return claims["username"].(string), nil
 }
 
 // jwt midleware to protect authentication
@@ -53,22 +55,28 @@ func JwtMidleware(next http.Handler) http.Handler {
 		// extraer el token
 		token, err := extractToken(r)
 		if err != nil {
+			log.Printf("Cannot extract token: %s\n", err.Error())
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("Malformed Token"))
 			return
 		}
 		// comprobar el token
-		if err := ComprobarJWT(token); err != nil {
-			fmt.Println(err.Error())
+		user, err := ComprobarJWT(token)
+		if err != nil {
+			log.Printf("Token authentication. Token invalid (%s): %s\n", token, err.Error())
 			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Invalid token"))
+			w.Write([]byte("Invalid token or bad auth header format"))
 			return
 		}
+		// guardo el username extraido para usar mas tarde en la request
+		r.SetBasicAuth(user, "")
 		// pasar al siguiente midleware
 		next.ServeHTTP(w, r)
 	})
 }
 
+// Funcion para extraer el token de una llamada http con Authorization Bearer
+// como header
 func extractToken(r *http.Request) (string, error) {
 	// get the token from the request
 	authHeader := strings.Split(r.Header.Get("Authorization"), "Bearer")
@@ -77,6 +85,7 @@ func extractToken(r *http.Request) (string, error) {
 		return "", fmt.Errorf("Malformed Token")
 	}
 	// comprobar si el token es correcto
-	token := strings.TrimPrefix(authHeader[1], ": ") // eliminar esta parte de la request
+	token := strings.TrimPrefix(authHeader[1], ":") // eliminar esta parte de la request
+	token = strings.TrimPrefix(token, " ")          // eliminar ese espacio raro
 	return token, nil
 }

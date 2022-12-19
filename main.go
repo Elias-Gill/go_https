@@ -17,7 +17,7 @@ func main() {
 	// instantiate chi router
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-    r.Use(tools.JwtMidleware) // TODO: ver como miercoles implementar este
+    r.Use(tools.JwtMidleware)
 	r.Route("/user", routers.UserHandlers)
 	r.Route("/teams", routers.TeamsHandlers)
 

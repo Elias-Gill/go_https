@@ -22,7 +22,6 @@ func UserHandlers(r chi.Router) {
 				return
 			}
 			// mandar el jwt con json
-            println(token)
 			jwt := jwtResponse{Jwt: token}
 			json.NewEncoder(w).Encode(jwt)
 			return
@@ -53,7 +52,7 @@ type newUser struct {
 	Password string `bson:"password"`
 }
 
-// BUG: Gill, sos medio boludo y te soles olvidar de que las variables
+// Gill, sos medio boludo y te soles olvidar de que las variables
 // para poder hacer el encoding tenes que poner en mayusculas(exportar)
 type jwtResponse struct {
 	Jwt string `bson:"jwt"`

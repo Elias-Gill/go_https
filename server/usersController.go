@@ -34,10 +34,10 @@ func NewUser(nombre string, password string) error {
 	// conectar con mongo
 	c := connectToMongo()
 	defer c.closeMongo()
-    // comprobar datos
-    if nombre == "" || password == "" {
+	// comprobar datos
+	if nombre == "" || password == "" {
 		return fmt.Errorf("Datos proporcionados invalidos")
-    }
+	}
 	// si el usuario ya existe entoces retornar un error
 	if u, _ := SearchUser(nombre); u != nil {
 		return fmt.Errorf("El usuario ya existe")
@@ -46,6 +46,7 @@ func NewUser(nombre string, password string) error {
 	// encriptar contrasena
 	encriptedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 	if err != nil {
+		println(err.Error())
 		return err
 	}
 	// insertion "query"
@@ -53,6 +54,7 @@ func NewUser(nombre string, password string) error {
 	doc := bson.D{{"userName", nombre}, {"password", encriptedPassword}}
 	result, err := coll.InsertOne(context.TODO(), doc)
 	if err != nil {
+		println(err.Error())
 		return err
 	}
 

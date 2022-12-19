@@ -1,7 +1,7 @@
 package test
 
 import (
-	"io"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -13,11 +13,16 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// struct para extraer el token de la request
+type tokens struct {
+	Token string `json:"jwt"`
+}
+
 // funcion para incializar un nuevo server de pruebas
 func nuevoServerPruebas() *httptest.Server {
 	anadirUsuarioDefecto()
 	r := chi.NewRouter()
-    r.Use(tools.JwtMidleware)
+	r.Use(tools.JwtMidleware)
 	r.Route("/user", routers.UserHandlers)
 	r.Route("/teams", routers.TeamsHandlers)
 	return httptest.NewServer(r)
@@ -45,16 +50,19 @@ func TestUserAuthentication(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	x, _ := io.ReadAll(res.Body)
-	clave := string(x)
-	if clave == "" {
-		t.Error("Credenciales mal retornadas: " + clave)
+	var to tokens
+	json.NewDecoder(res.Body).Decode(&to)
+	// comprobar que el token mandado es valido
+	user, err := tools.ComprobarJWT(to.Token)
+	if err != nil || user != "Elias" {
+		t.Error("token invalido: " + err.Error())
+		return
 	}
 }
 
 func anadirUsuarioDefecto() {
 	err := server.NewUser("Elias", "123")
-	if err != nil {
+	if err != nil && err.Error() != "El usuario ya existe" {
 		println(err.Error())
 	}
 }
