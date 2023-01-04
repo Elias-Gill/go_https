@@ -60,8 +60,9 @@ func TestUserAuthentication(t *testing.T) {
 	}
 }
 
+// establece un usuario por defecto con un nuevo team por defecto {"Elias": {charizard, bulbasaur y pikachu}}
 func anadirUsuarioDefecto() {
-	err := server.NewUser("Elias", "123")
+	err := server.DeleteUser("Elias")
 	if err != nil && err.Error() != "El usuario ya existe" {
 		println(err.Error())
 	}

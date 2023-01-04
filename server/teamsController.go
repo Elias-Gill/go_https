@@ -47,6 +47,7 @@ func AddNewPokemon(user string, pokName string) error {
 	}
 
     // actualizar el team y mandarlo a la db
+    // TODO: conectar con la api
 	newPok := pokemonModel{Name: pokName, Type: "agua", Power: 5}
 	team.Team = append(team.Team, newPok)
 	matches, err := database.UpdateOne(context.TODO(), bson.D{{"userName", user}}, bson.E{"team", team.Team})

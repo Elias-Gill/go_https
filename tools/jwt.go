@@ -41,7 +41,7 @@ func ComprobarJWT(receivedToken string) (string, error) {
 	if ok != true || token.Valid == false {
 		return "", fmt.Errorf("Token invalido o claims corrompidas")
 	}
-	return claims["username"].(string), nil
+	return claims["userName"].(string), nil
 }
 
 // jwt midleware to protect authentication

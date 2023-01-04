@@ -11,6 +11,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var teamPorDefecto = [3]string{"charizard", "bulbasaur", "pikachu"}
+
 // iniciar sesion en el server y enviar un webtoken de autenticacion
 func IniciarSesion(nombre string, contrasena string) (string, error) {
 	user, err := SearchUser(nombre)
@@ -51,7 +53,7 @@ func NewUser(nombre string, password string) error {
 	}
 	// insertion "query"
 	coll := c.conn.Database("myFirstDatabase").Collection("usermodels")
-	doc := bson.D{{"userName", nombre}, {"password", encriptedPassword}}
+	doc := bson.D{{"userName", nombre}, {"password", encriptedPassword}, {"team", teamPorDefecto}}
 	result, err := coll.InsertOne(context.TODO(), doc)
 	if err != nil {
 		println(err.Error())
@@ -67,6 +69,16 @@ type userModel struct {
 	UserName string `bson:"userName"`
 	Id       string `bson:"_id"`
 	Password string `bson:"password"`
+}
+
+// funcion para eliminar un usuario de la base de datos
+func DeleteUser(user string) error {
+	c := connectToMongo()
+	defer c.closeMongo()
+	// db y coleccion
+	database := c.conn.Database("myFirstDatabase").Collection("usermodels")
+	_, err := database.DeleteOne(context.TODO(), bson.D{{"userName", user}})
+	return err
 }
 
 // funcion para buscar un usuario dentro de la base de datos
@@ -87,13 +99,6 @@ func SearchUser(user string) (*userModel, error) {
 	return &result, nil
 }
 
-// funcion para cerrar mongo tranquilamente
-func (c serverMongo) closeMongo() {
-	if err := c.conn.Disconnect(context.TODO()); err != nil {
-		panic(err)
-	}
-}
-
 // servidor conectado
 type serverMongo struct {
 	conn *mongo.Client
@@ -108,4 +113,11 @@ func connectToMongo() *serverMongo {
 		panic(err)
 	}
 	return &serverMongo{conn: client}
+}
+
+// funcion para cerrar mongo tranquilamente
+func (c serverMongo) closeMongo() {
+	if err := c.conn.Disconnect(context.TODO()); err != nil {
+		panic(err)
+	}
 }
