@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/elias-gill/go_pokemon/tools"
+	"github.com/elias-gill/go_pokemon/authentication"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -15,7 +14,7 @@ var teamPorDefecto = [3]string{"charizard", "bulbasaur", "pikachu"}
 
 // iniciar sesion en el server y enviar un webtoken de autenticacion
 func IniciarSesion(nombre string, contrasena string) (string, error) {
-	user, err := SearchUser(nombre)
+	user, err := SearchUserInfo(nombre)
 	if err != nil {
 		return "", err
 	}
@@ -24,7 +23,7 @@ func IniciarSesion(nombre string, contrasena string) (string, error) {
 		return "", err
 	}
 	// generar y retornar el token con expiracion de 10 mins
-	token, err := tools.GenerateJWT(nombre)
+	token, err := authentication.GenerateJWT(nombre)
 	if err != nil {
 		return "", err
 	}
@@ -33,15 +32,12 @@ func IniciarSesion(nombre string, contrasena string) (string, error) {
 
 // funcion para anadir nuevo usuario a la base de datos
 func NewUser(nombre string, password string) error {
-	// conectar con mongo
-	c := connectToMongo()
-	defer c.closeMongo()
 	// comprobar datos
 	if nombre == "" || password == "" {
 		return fmt.Errorf("Datos proporcionados invalidos")
 	}
 	// si el usuario ya existe entoces retornar un error
-	if u, _ := SearchUser(nombre); u != nil {
+	if u, _ := SearchUserInfo(nombre); u != nil {
 		return fmt.Errorf("El usuario ya existe")
 	}
 
@@ -52,9 +48,8 @@ func NewUser(nombre string, password string) error {
 		return err
 	}
 	// insertion "query"
-	coll := c.conn.Database("myFirstDatabase").Collection("usermodels")
 	doc := bson.D{{"userName", nombre}, {"password", encriptedPassword}, {"team", teamPorDefecto}}
-	result, err := coll.InsertOne(context.TODO(), doc)
+	result, err := Database.InsertOne(context.TODO(), doc)
 	if err != nil {
 		println(err.Error())
 		return err
@@ -66,58 +61,26 @@ func NewUser(nombre string, password string) error {
 
 /* struct de modelo de usuario */
 type userModel struct {
-	UserName string `bson:"userName"`
-	Id       string `bson:"_id"`
-	Password string `bson:"password"`
+	UserName string    `bson:"userName"`
+	Id       string    `bson:"_id"`
+	Password string    `bson:"password"`
+	Team     teamModel `bson:"team"`
 }
 
 // funcion para eliminar un usuario de la base de datos
 func DeleteUser(user string) error {
-	c := connectToMongo()
-	defer c.closeMongo()
-	// db y coleccion
-	database := c.conn.Database("myFirstDatabase").Collection("usermodels")
-	_, err := database.DeleteOne(context.TODO(), bson.D{{"userName", user}})
+	_, err := Database.DeleteOne(context.TODO(), bson.D{{"userName", user}})
 	return err
 }
 
 // funcion para buscar un usuario dentro de la base de datos
-func SearchUser(user string) (*userModel, error) {
-	// conectar con mongo
-	c := connectToMongo()
-	defer c.closeMongo()
-	// db y coleccion
-	database := c.conn.Database("myFirstDatabase").Collection("usermodels")
-
+func SearchUserInfo(user string) (*userModel, error) {
 	// busqueda
 	var result userModel
-	err := database.FindOne(context.TODO(), bson.D{{"userName", user}}).Decode(&result)
+	err := Database.FindOne(context.TODO(), bson.D{{"userName", user}}).Decode(&result)
 	if err == mongo.ErrNoDocuments {
 		fmt.Println("No user found")
 		return nil, err
 	}
 	return &result, nil
-}
-
-// servidor conectado
-type serverMongo struct {
-	conn *mongo.Client
-}
-
-// funcion para conectar a la base de datos
-func connectToMongo() *serverMongo {
-	// TODO: add uri token to a enviroment variable
-	uri := "mongodb+srv://elias:elias@cluster0.zrvrq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
-	}
-	return &serverMongo{conn: client}
-}
-
-// funcion para cerrar mongo tranquilamente
-func (c serverMongo) closeMongo() {
-	if err := c.conn.Disconnect(context.TODO()); err != nil {
-		panic(err)
-	}
 }

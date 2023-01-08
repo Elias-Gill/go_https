@@ -1,4 +1,4 @@
-package tools
+package authentication
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+// TODO: guardar como variable de entorno
 var clave = []byte("mi clave super secreta")
 
 // generar un nuevo jwt para la autenticacion del usuario
@@ -23,7 +24,8 @@ func GenerateJWT(username string) (string, error) {
 	return res, nil
 }
 
-// Comprobar el jwt, parsearlo, revisar la firma y la validez del token
+// Comprobar el jwt, parsearlo, revisar la firma y la validez del token. Retorna el nombre de
+// usuario contenido dentro del token
 func ComprobarJWT(receivedToken string) (string, error) {
 	token, err := jwt.Parse(receivedToken, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
@@ -41,6 +43,7 @@ func ComprobarJWT(receivedToken string) (string, error) {
 	if ok != true || token.Valid == false {
 		return "", fmt.Errorf("Token invalido o claims corrompidas")
 	}
+	// retorna el nombre del usuario
 	return claims["userName"].(string), nil
 }
 
@@ -76,7 +79,7 @@ func JwtMidleware(next http.Handler) http.Handler {
 }
 
 // Funcion para extraer el token de una llamada http con Authorization Bearer
-// como header
+// como header. Retorna el token aislado
 func extractToken(r *http.Request) (string, error) {
 	// get the token from the request
 	authHeader := strings.Split(r.Header.Get("Authorization"), "Bearer")
