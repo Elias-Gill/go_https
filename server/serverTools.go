@@ -31,7 +31,7 @@ func ConnectToMongo() *serverMongo {
 	return &serverMongo{conn: client}
 }
 
-// funcion para cerrar mongo tranquilamente
+// funcion para cerrar la conexion con mongo tranquilamente
 func (c serverMongo) CloseMongo() {
 	if err := c.conn.Disconnect(context.TODO()); err != nil {
 		panic(err)

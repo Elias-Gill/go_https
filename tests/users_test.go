@@ -11,10 +11,6 @@ import (
 
 // testear la llamada autenticacion de usuario
 func TestUserAuthentication(t *testing.T) {
-	// nuevo server de pruebas
-	ts := nuevoServerPruebas()
-	defer ts.Close()
-
 	// iniciar sesion con el nuevo usuario
 	req, _ := http.NewRequest("GET", ts.URL+"/user/", nil)
 	req.URL.User = url.UserPassword("Elias", "123")

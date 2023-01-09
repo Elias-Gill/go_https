@@ -8,8 +8,14 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// struct de nueva request
+type body struct {
+	Pokemon string `json:"pokemon"`
+}
+
+// handler sobre la ruta "/teams"
 func TeamsHandlers(r chi.Router) {
-	// iniciar sesion
+    // retornar el team del equipo
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-type", "application/json")
 		user, _, _ := r.BasicAuth()
@@ -23,24 +29,41 @@ func TeamsHandlers(r chi.Router) {
 		json.NewEncoder(w).Encode(&team)
 	})
 
+    // anadir un pokemon al equipo
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-		// anadir un nuevo usuario a la base de datos
+		// obtener el usuario de la request
 		user, _, _ := r.BasicAuth()
-        var body body
-        json.NewDecoder(r.Body).Decode(&body)
+		// obtener datos de la request
+		var body body
+		json.NewDecoder(r.Body).Decode(&body)
 		err := server.AddNewPokemon(user, body.Pokemon)
-        if err != nil {
-            print(err.Error())
-            w.WriteHeader(400)
-            w.Write([]byte("Error al parsear request o pokemon no encontrado"))
-        } else {
-            w.WriteHeader(200)
-            w.Write([]byte("Insercion exitosa del nuevo pokemon"))
-        }
+		if err != nil {
+			print(err.Error())
+			w.WriteHeader(400)
+			w.Write([]byte("Error al parsear request o pokemon no encontrado"))
+			return
+		}
+		w.WriteHeader(200)
+		w.Write([]byte("Insercion exitosa del nuevo pokemon"))
+		return
 	})
-}
 
-// struct de nueva request
-type body struct {
-    Pokemon string `json:"pokemon"`
+    // eliminar un pokemon en cierta posicion o la primera ocurrencia del nombre
+	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+		// obtener el usuario de la request
+		user, _, _ := r.BasicAuth()
+		// obtener datos de la request
+		var body body
+		json.NewDecoder(r.Body).Decode(&body)
+		err := server.AddNewPokemon(user, body.Pokemon)
+		if err != nil {
+			print(err.Error())
+			w.WriteHeader(400)
+			w.Write([]byte("Error al parsear request o pokemon no encontrado"))
+			return
+		}
+		w.WriteHeader(200)
+		w.Write([]byte("Insercion exitosa del nuevo pokemon"))
+		return
+	})
 }

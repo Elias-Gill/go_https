@@ -10,7 +10,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var teamPorDefecto = [3]string{"charizard", "bulbasaur", "pikachu"}
+var defaultTeam = cargarTeamPorDefecto()
+
+/* struct de modelo de usuario */
+type userModel struct {
+	UserName string  `bson:"userName"`
+	Id       string  `bson:"_id"`
+	Password string  `bson:"password"`
+	Team     []pokemon `bson:"team"` // array de maps
+}
 
 // iniciar sesion en el server y enviar un webtoken de autenticacion
 func IniciarSesion(nombre string, contrasena string) (string, error) {
@@ -48,7 +56,11 @@ func NewUser(nombre string, password string) error {
 		return err
 	}
 	// insertion "query"
-	doc := bson.D{{"userName", nombre}, {"password", encriptedPassword}, {"team", teamPorDefecto}}
+	doc := bson.D{
+		{Key: "userName", Value: nombre},
+		{Key: "password", Value: encriptedPassword},
+		{Key: "team", Value: defaultTeam},
+	}
 	result, err := Database.InsertOne(context.TODO(), doc)
 	if err != nil {
 		println(err.Error())
@@ -59,17 +71,10 @@ func NewUser(nombre string, password string) error {
 	return nil
 }
 
-/* struct de modelo de usuario */
-type userModel struct {
-	UserName string    `bson:"userName"`
-	Id       string    `bson:"_id"`
-	Password string    `bson:"password"`
-	Team     teamModel `bson:"team"`
-}
-
 // funcion para eliminar un usuario de la base de datos
 func DeleteUser(user string) error {
-	_, err := Database.DeleteOne(context.TODO(), bson.D{{"userName", user}})
+	filter := bson.D{{Key: "userName", Value: user}}
+	_, err := Database.DeleteOne(context.TODO(), filter)
 	return err
 }
 
@@ -77,7 +82,8 @@ func DeleteUser(user string) error {
 func SearchUserInfo(user string) (*userModel, error) {
 	// busqueda
 	var result userModel
-	err := Database.FindOne(context.TODO(), bson.D{{"userName", user}}).Decode(&result)
+	filter := bson.D{{Key: "userName", Value: user}}
+	err := Database.FindOne(context.TODO(), filter).Decode(&result)
 	if err == mongo.ErrNoDocuments {
 		fmt.Println("No user found")
 		return nil, err
