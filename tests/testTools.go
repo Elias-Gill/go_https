@@ -16,7 +16,7 @@ import (
 
 var (
 	ts    = nuevoServerPruebas() // sever de pruebas
-	token = iniciarSesion()      // jwt de usuario de pruebas
+	token = obtenerJwtPruebas()  // jwt de usuario de pruebas
 )
 
 // struct para extraer el token de la request
@@ -35,8 +35,8 @@ func nuevoServerPruebas() *httptest.Server {
 }
 
 // funcion para iniciar sesion en el usuario de pruebas. Consigue el jwt y lo guarda
-// en la variable global toke
-func iniciarSesion() string {
+// en la variable global token
+func obtenerJwtPruebas() string {
 	// iniciar sesion con el nuevo usuario
 	req, _ := http.NewRequest("GET", ts.URL+"/user/", nil)
 	req.URL.User = url.UserPassword("Elias", "123")
@@ -74,28 +74,31 @@ type responseBody struct {
 }
 
 // funcion para realizar agilizar las request, con todo el boiler plate necesario
-func nuevaRequest(metodo string, body *responseBody) (*http.Response, error) {
+func nuevaRequestTeams(metodo string, body *responseBody) (*server.UserModel, error) {
 	// cargar el body si no es nulo
 	data, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
-	// nueva request con la plantilla
+	// transformar el body para escribirlo (si no es nulo)
 	var aux *bytes.Buffer = nil
 	if data != nil {
 		aux = bytes.NewBuffer(data)
 	}
-	request, err := http.NewRequest(metodo, ts.URL+"/teams", aux)
-	request.Header.Set("Content-type", "application/json")
-    request.Header.Set("Authorization", "Bearer: " + token)
+	// nueva request con la plantilla
+	req, err := http.NewRequest(metodo, ts.URL+"/teams/", aux)
+	req.Header.Add("Content-type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token)
 	if err != nil {
 		return nil, err
 	}
 	// realizar la request
-	res, err := ts.Client().Do(request)
+	res, err := ts.Client().Do(req)
 	if err != nil {
 		return nil, err
 	}
 	// retornar el resultado
-	return res, nil
+    var x server.UserModel
+	json.NewDecoder(res.Body).Decode(&x)
+	return &x, nil
 }

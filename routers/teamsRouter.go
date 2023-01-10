@@ -49,13 +49,13 @@ func TeamsHandlers(r chi.Router) {
 	})
 
     // eliminar un pokemon en cierta posicion o la primera ocurrencia del nombre
-	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+	r.Delete("/", func(w http.ResponseWriter, r *http.Request) {
 		// obtener el usuario de la request
 		user, _, _ := r.BasicAuth()
 		// obtener datos de la request
 		var body body
 		json.NewDecoder(r.Body).Decode(&body)
-		err := server.AddNewPokemon(user, body.Pokemon)
+		err := server.DeletePokemon(user, body.Pokemon)
 		if err != nil {
 			print(err.Error())
 			w.WriteHeader(400)
