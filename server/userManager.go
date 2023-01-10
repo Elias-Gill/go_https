@@ -13,11 +13,11 @@ import (
 var defaultTeam = cargarTeamPorDefecto()
 
 /* struct de modelo de usuario */
-type userModel struct {
+type UserModel struct {
 	UserName string  `bson:"userName"`
 	Id       string  `bson:"_id"`
 	Password string  `bson:"password"`
-	Team     []pokemon `bson:"team"` // array de maps
+	Team     []pokemon `bson:"team"` // array de pokemones
 }
 
 // iniciar sesion en el server y enviar un webtoken de autenticacion
@@ -79,9 +79,9 @@ func DeleteUser(user string) error {
 }
 
 // funcion para buscar un usuario dentro de la base de datos
-func SearchUserInfo(user string) (*userModel, error) {
+func SearchUserInfo(user string) (*UserModel, error) {
 	// busqueda
-	var result userModel
+	var result UserModel
 	filter := bson.D{{Key: "userName", Value: user}}
 	err := Database.FindOne(context.TODO(), filter).Decode(&result)
 	if err == mongo.ErrNoDocuments {

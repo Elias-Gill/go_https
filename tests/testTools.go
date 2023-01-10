@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -63,6 +64,38 @@ func anadirUsuarioDefecto() {
 	server.DeleteUser("Elias")
 	err := server.NewUser("Elias", "123")
 	if err != nil && err.Error() != "El usuario ya existe" {
-		println(err.Error())
+		panic(err.Error())
 	}
+}
+
+// boiler plate para un nueva request
+type responseBody struct {
+	Pokemon string `bson:"pokemon"`
+}
+
+// funcion para realizar agilizar las request, con todo el boiler plate necesario
+func nuevaRequest(metodo string, body *responseBody) (*http.Response, error) {
+	// cargar el body si no es nulo
+	data, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	// nueva request con la plantilla
+	var aux *bytes.Buffer = nil
+	if data != nil {
+		aux = bytes.NewBuffer(data)
+	}
+	request, err := http.NewRequest(metodo, ts.URL+"/teams", aux)
+	request.Header.Set("Content-type", "application/json")
+    request.Header.Set("Authorization", "Bearer: " + token)
+	if err != nil {
+		return nil, err
+	}
+	// realizar la request
+	res, err := ts.Client().Do(request)
+	if err != nil {
+		return nil, err
+	}
+	// retornar el resultado
+	return res, nil
 }

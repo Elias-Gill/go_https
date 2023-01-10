@@ -52,7 +52,7 @@ type newUser struct {
 	Password string `bson:"password"`
 }
 
-// Gill, sos medio boludo y te soles olvidar de que las variables
+// BUG: Gill, sos medio boludo y te soles olvidar de que las variables
 // para poder hacer el encoding tenes que poner en mayusculas(exportar)
 type jwtResponse struct {
 	Jwt string `bson:"jwt"`
