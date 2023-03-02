@@ -8,17 +8,24 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+type httpError struct {
+	Error string `json:"error"`
+}
+
 // handlers de users/
 func UserHandlers(r chi.Router) {
 	// iniciar sesion
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		user, pasw, ok := r.BasicAuth() // get user credentials
 		if ok {
-            w.Header().Set("Content-type", "application/json")
+			w.Header().Set("Content-type", "application/json")
 			token, err := servidor.IniciarSesion(user, pasw)
 			if err != nil {
-				w.WriteHeader(405) // error de autenticacion
-				w.Write([]byte(err.Error()))
+                // error de parseo 
+                println("error al parsear credenciales")
+				err := httpError{Error: err.Error()}
+				w.WriteHeader(405)
+				json.NewEncoder(w).Encode(err)
 				return
 			}
 			// mandar el jwt con json
@@ -26,8 +33,11 @@ func UserHandlers(r chi.Router) {
 			json.NewEncoder(w).Encode(jwt)
 			return
 		}
-		w.WriteHeader(405) // error de autenticacion
-        w.Write([]byte("Usuario o contrasena invalidos"))
+		// error de autenticacion
+        println("Error de credenciales " + user + " " + pasw)
+		err := httpError{Error: "Usuario o contrasena invalidos"}
+		w.WriteHeader(405)
+		json.NewEncoder(w).Encode(err)
 	})
 
 	// anadir un nuevo usuario a la base de datos
@@ -42,7 +52,7 @@ func UserHandlers(r chi.Router) {
 		}
 		// crear el nuevo usuario
 		servidor.NewUser(data.UserName, data.Password)
-		w.Write([]byte("cuenta creada satisfactoriamente"))
+		w.WriteHeader(200)
 	})
 }
 
@@ -52,8 +62,6 @@ type newUser struct {
 	Password string `bson:"password"`
 }
 
-// BUG: Gill, sos medio boludo y te soles olvidar de que las variables
-// para poder hacer el encoding tenes que poner en mayusculas(exportar)
 type jwtResponse struct {
 	Jwt string `bson:"jwt"`
 }
