@@ -1,0 +1,100 @@
+basePath: /
+info:
+  contact: {}
+  description: pokeapi "wrapper" made using golang
+  title: 'go_https ft: pokeapi'
+  version: "1.0"
+paths:
+  /teams:
+    delete:
+      consumes:
+      - application/json
+      description: deletes the first occurence of a pokemon or deletes the given position
+      parameters:
+      - description: name search by q
+        format: email
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+      summary: delete pokemon
+      tags:
+      - teams
+    get:
+      consumes:
+      - application/json
+      description: teams actions
+      parameters:
+      - description: name search by q
+        format: email
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+      summary: teams actions
+      tags:
+      - teams
+    post:
+      consumes:
+      - application/json
+      description: adds a new pokemon
+      parameters:
+      - description: name search by q
+        format: email
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+      summary: add new pokemon to the team
+      tags:
+      - teams
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: inicia sesion con el usuario y retorna un token de acceso
+      parameters:
+      - description: name search by q
+        format: email
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+      summary: Inicio de sesion
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: adds a new user to the database with a default team
+      parameters:
+      - description: name search by q
+        format: email
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+      summary: create a new user account
+      tags:
+      - users
+swagger: "2.0"

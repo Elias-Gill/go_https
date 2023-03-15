@@ -44,14 +44,16 @@ type pokemon struct {
 	Types           []pktype `json:"types"`
 }
 
+// Traer la informacion de un pokemon de pokeapi.co
 func getPokemonFromApi(pkName string) (*pokemon, error) {
-	// realizar peticion
+	// peticion
 	query := pokeapi + pkName
 	res, err := http.Get(query)
 	if err != nil {
 		return nil, err
 	}
-	// leer body y pasar el string
+
+	// leer body y parsear
 	var pokemon pokemon
 	err = json.NewDecoder(res.Body).Decode(&pokemon)
 	if err != nil {

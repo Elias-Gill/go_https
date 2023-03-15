@@ -50,11 +50,17 @@ func ComprobarJWT(receivedToken string) (string, error) {
 // jwt midleware to protect authentication
 func JwtMidleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// no proteger "/user/" porque no necesita token para crear o iniciar sesion
-		if r.URL.Path == "/user/" {
+		// no proteger "/login/" porque no necesita token para crear o iniciar sesion
+		if r.URL.Path == "/login/" {
 			next.ServeHTTP(w, r)
 			return
 		}
+		// no proteger swagger
+		if strings.Index(r.URL.Path, "swagger") != -1 {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		// extraer el token
 		token, err := extractToken(r)
 		if err != nil {
@@ -71,9 +77,8 @@ func JwtMidleware(next http.Handler) http.Handler {
 			w.Write([]byte("Invalid token or bad auth header format"))
 			return
 		}
-		// guardo el username extraido para usar mas tarde en la request
+		// guardar el username extraido y pasar al siguiente midleware
 		r.SetBasicAuth(user, "")
-		// pasar al siguiente midleware
 		next.ServeHTTP(w, r)
 	})
 }
@@ -83,6 +88,7 @@ func JwtMidleware(next http.Handler) http.Handler {
 func extractToken(r *http.Request) (string, error) {
 	// get the token from the request
 	authHeader := strings.Split(r.Header.Get("Authorization"), "Bearer")
+
 	// comprobar el estado del token
 	if len(authHeader) != 2 {
 		return "", fmt.Errorf("Malformed Token")
@@ -90,5 +96,6 @@ func extractToken(r *http.Request) (string, error) {
 	// comprobar si el token es correcto
 	token := strings.TrimPrefix(authHeader[1], ":") // eliminar esta parte de la request
 	token = strings.TrimPrefix(token, " ")          // eliminar ese espacio raro
+
 	return token, nil
 }

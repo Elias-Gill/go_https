@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"log"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -33,6 +34,7 @@ func ConnectToMongo() *serverMongo {
 
 // funcion para cerrar la conexion con mongo tranquilamente
 func (c serverMongo) CloseMongo() {
+	log.Println("server gracefull shutdown")
 	if err := c.conn.Disconnect(context.TODO()); err != nil {
 		panic(err)
 	}

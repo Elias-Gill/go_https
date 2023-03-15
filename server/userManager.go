@@ -10,13 +10,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var defaultTeam = cargarTeamPorDefecto()
+var defaultTeam = newDefaultTeam()
 
 /* struct de modelo de usuario */
 type UserModel struct {
-	UserName string  `bson:"userName"`
-	Id       string  `bson:"_id"`
-	Password string  `bson:"password"`
+	UserName string    `bson:"userName"`
+	Id       string    `bson:"_id"`
+	Password string    `bson:"password"`
 	Team     []pokemon `bson:"team"` // array de pokemones
 }
 
@@ -44,6 +44,7 @@ func NewUser(nombre string, password string) error {
 	if nombre == "" || password == "" {
 		return fmt.Errorf("Datos proporcionados invalidos")
 	}
+
 	// si el usuario ya existe entoces retornar un error
 	if u, _ := SearchUserInfo(nombre); u != nil {
 		return fmt.Errorf("El usuario ya existe")
@@ -55,6 +56,7 @@ func NewUser(nombre string, password string) error {
 		println(err.Error())
 		return err
 	}
+
 	// insertion "query"
 	doc := bson.D{
 		{Key: "userName", Value: nombre},
