@@ -24,14 +24,14 @@ type jwtResponse struct {
 	Jwt string `bson:"jwt"`
 }
 
-//	@Summary		Inicio de sesion
-//	@Description	inicia sesion con el usuario y retorna un token de acceso
-//	@Tags			users
-//	@Accept			json
-//	@Produce		json
-//	@Param			q	query	string	false	"name search by q"	Format(email)
-//	@Failure		400
-//	@Router			/users [get]
+// @Summary		Inicio de sesion
+// @Description	inicia sesion con el usuario y retorna un token de acceso
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Param			q	query	string	false	"name search by q"	Format(email)
+// @Failure		400
+// @Router			/users [get]
 func getUsers(w http.ResponseWriter, r *http.Request) {
 	user, pasw, ok := r.BasicAuth() // get user credentials
 	if ok {
@@ -57,14 +57,14 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(err)
 }
 
-//	@Summary		create a new user account
-//	@Description	adds a new user to the database with a default team
-//	@Tags			users
-//	@Accept			json
-//	@Produce		json
-//	@Param			q	query	string	false	"name search by q"	Format(email)
-//	@Failure		400
-//	@Router			/users [post]
+// @Summary		create a new user account
+// @Description	adds a new user to the database with a default team
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Param			q	query	string	false	"name search by q"	Format(email)
+// @Failure		400
+// @Router			/users [post]
 func postUsers(w http.ResponseWriter, r *http.Request) {
 	var data newUser
 	err := json.NewDecoder(r.Body).Decode(&data)

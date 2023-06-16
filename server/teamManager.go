@@ -30,7 +30,7 @@ func AddNewPokemon(user string, pokName string) error {
 	// guardar en la db
 	filter := bson.D{{Key: "userName", Value: user}}
 	update := bson.D{{Key: "$set", Value: bson.D{{Key: "team", Value: team}}}}
-	_, err = Database.UpdateOne(context.TODO(), filter, update)
+	_, err = database.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func DeletePokemon(user string, pokName string) error {
 	// guardar en la db
 	filter := bson.D{{Key: "userName", Value: user}}
 	update := bson.D{{Key: "$set", Value: bson.D{{Key: "team", Value: aux}}}}
-	_, err = Database.UpdateOne(context.TODO(), filter, update)
+	_, err = database.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		return err
 	}

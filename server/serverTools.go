@@ -13,7 +13,7 @@ var (
 	// conexion a mongoDB
 	C = ConnectToMongo()
 	// db y coleccion
-	Database = C.conn.Database("myFirstDatabase").Collection("users")
+	database = C.conn.Database("myFirstDatabase").Collection("users")
 )
 
 // servidor conectado

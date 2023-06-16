@@ -7,19 +7,19 @@ import (
 	"syscall"
 
 	"github.com/elias-gill/go_pokemon/authentication"
+	_ "github.com/elias-gill/go_pokemon/docs"
 	"github.com/elias-gill/go_pokemon/routers"
 	"github.com/elias-gill/go_pokemon/server"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
-	_ "github.com/elias-gill/go_pokemon/docs"
 )
 
-//	@title			go_https ft: pokeapi
-//	@version		1.0
-//	@description	pokeapi "wrapper" made using golang
-//	@BasePath		/
+// @title			go_https ft: pokeapi
+// @version		1.0
+// @description	pokeapi "wrapper" made using golang
+// @BasePath		/
 func main() {
 	// instantiate chi router
 	port := ":3000"

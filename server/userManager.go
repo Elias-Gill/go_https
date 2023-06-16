@@ -63,7 +63,7 @@ func NewUser(nombre string, password string) error {
 		{Key: "password", Value: encriptedPassword},
 		{Key: "team", Value: defaultTeam},
 	}
-	result, err := Database.InsertOne(context.TODO(), doc)
+	result, err := database.InsertOne(context.TODO(), doc)
 	if err != nil {
 		println(err.Error())
 		return err
@@ -76,7 +76,7 @@ func NewUser(nombre string, password string) error {
 // funcion para eliminar un usuario de la base de datos
 func DeleteUser(user string) error {
 	filter := bson.D{{Key: "userName", Value: user}}
-	_, err := Database.DeleteOne(context.TODO(), filter)
+	_, err := database.DeleteOne(context.TODO(), filter)
 	return err
 }
 
@@ -85,7 +85,7 @@ func SearchUserInfo(user string) (*UserModel, error) {
 	// busqueda
 	var result UserModel
 	filter := bson.D{{Key: "userName", Value: user}}
-	err := Database.FindOne(context.TODO(), filter).Decode(&result)
+	err := database.FindOne(context.TODO(), filter).Decode(&result)
 	if err == mongo.ErrNoDocuments {
 		fmt.Println("No user found")
 		return nil, err

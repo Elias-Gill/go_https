@@ -26,8 +26,8 @@ func GenerateJWT(username string) (string, error) {
 
 // Comprobar el jwt, parsearlo, revisar la firma y la validez del token. Retorna el nombre de
 // usuario contenido dentro del token
-func ComprobarJWT(receivedToken string) (string, error) {
-	token, err := jwt.Parse(receivedToken, func(token *jwt.Token) (interface{}, error) {
+func ComprobarJWT(reciebedToken string) (string, error) {
+	token, err := jwt.Parse(reciebedToken, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
