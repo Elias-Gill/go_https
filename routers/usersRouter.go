@@ -24,6 +24,12 @@ type jwtResponse struct {
 	Jwt string `bson:"jwt"`
 }
 
+// handlers de users/
+func UserHandlers(r chi.Router) {
+    r.Get("/", getUsers)
+    r.Post("/", postUsers)
+}
+
 // @Summary		Inicio de sesion
 // @Description	inicia sesion con el usuario y retorna un token de acceso
 // @Tags			users
@@ -77,10 +83,4 @@ func postUsers(w http.ResponseWriter, r *http.Request) {
 	// crear el nuevo usuario
 	servidor.NewUser(data.UserName, data.Password)
 	w.WriteHeader(200)
-}
-
-// handlers de users/
-func UserHandlers(r chi.Router) {
-	r.Get("/", getUsers)
-	r.Post("/", postUsers)
 }
